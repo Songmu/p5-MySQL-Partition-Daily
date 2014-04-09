@@ -1,5 +1,5 @@
 package MySQL::Partition::Daily;
-use 5.008005;
+use 5.008001;
 use strict;
 use warnings;
 
@@ -7,18 +7,14 @@ our $VERSION = "0.01";
 
 use MySQL::Partition::Daily::Table;
 
-use Mouse;
+use Class::Accessor::Lite (
+    ro => [qw/tables dbh catch_all_partition_name/],
+);
 
-has tables => (is => 'ro', isa => 'HashRef', required => 1);
-has dbh    => (is => 'ro', isa => 'Object',  required => 1);
-has catch_all_partition_name => (is => 'ro', isa => 'Str');
+sub partition_tables {
+    my $self = shift;
 
-has partition_tables => (
-    is      => 'ro',
-    isa     => 'ArrayRef',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
+    $self->{partition_tables} ||= do {
         [
             map {
                 my $table = $_;
@@ -33,10 +29,8 @@ has partition_tables => (
                 );
             } keys %{ $self->tables }
         ]
-    },
-);
-
-no Mouse;
+    };
+}
 
 sub run {
     my $self = shift;
