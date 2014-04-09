@@ -8,6 +8,7 @@ our $VERSION = "0.01";
 use MySQL::Partition::Daily::Table;
 
 use Class::Accessor::Lite (
+    new => 1,
     ro => [qw/tables dbh catch_all_partition_name/],
 );
 

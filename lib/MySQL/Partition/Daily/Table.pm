@@ -7,7 +7,8 @@ use Time::Piece ();
 use Time::Seconds;
 
 use Class::Accessor::Lite (
-    ro => [qw/tables column dbh keep_days catch_all_partition_name/],
+    new => 1,
+    ro => [qw/table column dbh keep_days catch_all_partition_name/],
 );
 
 sub mysql_partition {
