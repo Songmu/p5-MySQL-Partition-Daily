@@ -1,9 +1,11 @@
 use strict;
 use warnings;
 use utf8;
-use Test::MockTime;
+use Test::MockTime qw/set_relative_time/;
 use Test::More 0.98;
 use Test::mysqld;
+
+use Time::Seconds;
 
 my $mysqld = Test::mysqld->new(
     my_cnf => {
@@ -35,19 +37,33 @@ $dbh->do(q[CREATE TABLE `test2` (
   PRIMARY KEY (`id`, `last_accessed_at`)
 )]);
 
-my $partition_daily = MySQL::Partition::Daily->new(
-    dbh    => $dbh,
-    tables => {
-        test1 => {
-            column => 'created_at',
+sub partition_daily {
+    MySQL::Partition::Daily->new(
+        dbh    => $dbh,
+        tables => {
+            test1 => {
+                column => 'created_at',
+            },
+            test2 => {
+                column    => 'last_accessed_at',
+                keep_days => 1,
+            },
         },
-        test2 => {
-            column => 'last_accessed_at',
-        },
-    },
-);
+    );
+}
 
-$partition_daily->run;
-pass 'ok';
+partition_daily->run;
+pass 'create ok';
+
+set_relative_time(ONE_DAY);
+partition_daily->run;
+pass 'add ok';
+
+partition_daily->run;
+pass 'nop ok';
+
+set_relative_time(ONE_DAY * 2);
+partition_daily->run;
+pass 'add and drop ok';
 
 done_testing;
