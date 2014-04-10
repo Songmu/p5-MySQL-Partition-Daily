@@ -23,6 +23,7 @@ sub mysql_partition {
         dbh        => $self->dbh,
         table      => $self->table,
         expression => $self->column,
+        ($self->catch_all_partition_name ? (catch_all_partition_name => $self->catch_all_partition_name) : ()),
     );
 }
 
